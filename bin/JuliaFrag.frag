@@ -1,8 +1,13 @@
 #version 330 core
 
+#define PI 3.14159265359
+
 out vec4 FragColor;
 
 in vec2 FragPos;
+
+uniform vec2 c;
+uniform float time;
 
 vec2 cmpxmul(in vec2 a, in vec2 b) 
 {
@@ -14,15 +19,15 @@ float cmpxmag(in vec2 c)
     return sqrt(c.x * c.x + c.y * c.y);
 }
 
-vec4 Madelbrot(in vec2 c)
+vec4 Julia(in vec2 z, in vec2 c)
 {
-    vec2 res = c; 
+    vec2 res = cmpxmul(z, z) + c; 
     for (int i = 0; i < 200; i++)
     {
         res = cmpxmul(res, res) + c;
         if (cmpxmag(res) > 2.0)
         {
-            // return vec4(i / 200.0, 0.0, (200 -i) / 200.0, 1.0);
+            // return vec4(i / 250.0, (300 -i) / 300.0, (200 -i) / 220.0, 1.0);
             if (i > 190)   
                 return vec4(1.0, 0.0, 0.75, 1.0);
             else if (i > 180)   
@@ -71,5 +76,5 @@ vec4 Madelbrot(in vec2 c)
 
 void main()
 {
-    FragColor = Madelbrot(FragPos);
+    FragColor = Julia(FragPos, c);
 }

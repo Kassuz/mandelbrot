@@ -18,8 +18,26 @@
 
 const unsigned int SCREEN_WIDTH  = 1400;
 const unsigned int SCREEN_HEIGHT = 1400;
+const float PI = 3.14159265359f;
+const float TWO_PI = 2.0f * 3.14159265359f;
 
-// void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+float a = 0.0f;
+void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (key == GLFW_KEY_UP)
+	{
+		a += 0.01f;
+		if (a > TWO_PI)
+			a -= TWO_PI;
+	}
+	
+	if (key == GLFW_KEY_DOWN)
+	{
+		a -= 0.01f;
+		if (a < 0.0f)
+			a += TWO_PI;
+	}
+}
 // void MouseCallback(GLFWwindow* window, double xpos, double ypos);
 // void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 
@@ -100,7 +118,7 @@ int main(int argc, char* argv[])
 
 
 	// glfwSetCursorPosCallback(window, MouseCallback);
-	// glfwSetKeyCallback(window, KeyCallback);
+	glfwSetKeyCallback(window, KeyCallback);
 	// glfwSetMouseButtonCallback(window, MouseButtonCallback);
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -139,10 +157,12 @@ int main(int argc, char* argv[])
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	
-    Shader* shader = LoadShaderFromFile("Vertex.vert", "Fragment.frag");
+    // Shader* shader = LoadShaderFromFile("Vertex.vert", "Fragment.frag");
+    Shader* shader = LoadShaderFromFile("Vertex.vert", "JuliaFrag.frag");
     if (shader == nullptr)
     {
-        shader = LoadShaderFromFile("bin/Vertex.vert", "bin/Fragment.frag"); // Purkka vs code build taskeihin, koska tässä hakee eri paikasta tiedostoja
+        // shader = LoadShaderFromFile("bin/Vertex.vert", "bin/Fragment.frag"); // Purkka vs code build taskeihin, koska tässä hakee eri paikasta tiedostoja
+        shader = LoadShaderFromFile("bin/Vertex.vert", "bin/JuliaFrag.frag"); // Purkka vs code build taskeihin, koska tässä hakee eri paikasta tiedostoja
         if (shader == nullptr)
         {
             system("pause");
@@ -162,13 +182,20 @@ int main(int argc, char* argv[])
 		glClearColor(0.35f, 0.35f, 0.35f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glm::vec3 scale((Timer::GetTime() * 10.0f));
         glm::mat4 model;
-        model = glm::translate(model, glm::vec3(-1.22f, 0.145f, 0.0f));
-        glm::mat4 scaleMat;
-        scaleMat = glm::scale(scaleMat, scale);
-        model *= glm::inverse(scaleMat);
+		// model = glm::scale(model, glm::vec3(1.5f));
+        // model = glm::translate(model, glm::vec3(-1.22f, 0.145f, 0.0f));
+        // glm::mat4 scaleMat;
+        // glm::vec3 scale((Timer::GetTime() * 0.1f));
+        // scaleMat = glm::scale(scaleMat, scale);
+        // model *= glm::inverse(scaleMat);
         shader->SetMat4("model", model);
+
+		float a = std::fmod(Timer::GetTime() / 5.0f, 2.0f * glm::pi<float>());
+		float sin = std::sin(a);
+		float cos = std::cos(a);
+		shader->SetVec2("c", glm::vec2(cos * 0.7885f, sin * 0.7885f));
+		shader->SetFloat("time", Timer::GetTime());
 
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
